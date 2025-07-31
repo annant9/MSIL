@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.expand-panel {
+  margin: 0px auto !important;
+}
+
+.shrink-panel {
+  margin: 0px auto 0px 354px !important;
+}
+
+.auto-scrollable-wrapper {
+  overflow: auto;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.input-text {
+  min-height: 2rem;
+  max-height: 5rem;
+  overflow-y: auto;
+  resize: none;
+  transition: height 0.2s ease;
+  line-height: 1.5rem;
+}
+
+.model-attachment-style {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: left;
+}
+
+.submit-style {
+  text-align-last:right
+}
+
+.text-area-style {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 1rem !important;
+  min-height: 2rem;
+  max-height: 5rem;
+  overflow-y: auto;
+  resize: none;
+  transition: height 0.2s ease;
+  line-height: 1.5rem;
+
+  &:focus-visible {
+      background-color: transparent !important;
+      border: transparent !important;
+      outline: transparent !important;
+      padding-block-start: 0.725rem !important;
+      padding-inline: 1rem !important;
+      padding: 1rem !important;
+  }
+}
+
+
+.text-area-style {
+  max-height: 5rem;
+  overflow-y: hidden;
+  resize: none;
+  transition: height 0.2s ease;
+} 

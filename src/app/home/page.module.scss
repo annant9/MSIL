@@ -1,0 +1,26 @@
+.formContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin: auto 4rem;
+}
+.formatSelector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem auto;
+}
+
+.accordionHeader {
+    background-color: #007bc030 !important;
+}
+
+.accordion {
+    height: fit-content !important;
+}
+
+.noPointerEvents {
+    // pointer-events: none;
+    cursor: default !important;
+}

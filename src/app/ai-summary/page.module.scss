@@ -1,0 +1,28 @@
+.textStyle {
+    font-size: 1rem !important;
+}
+
+.boldText {
+    font-weight: bold !important;
+}
+
+.gridContainer {
+    justify-content: space-evenly;
+}
+
+.predictionContainer {
+    margin-bottom: 2rem;
+}
+
+.highlightedText {
+    background-color: #007bc0;
+    padding: 0.3rem 0.7rem !important;
+    width: fit-content;
+    color: white;
+    border-radius: 0.5rem;
+}
+
+.knowMore {
+    margin-top: 2rem;
+    text-align-last: end;
+}

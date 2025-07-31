@@ -1,0 +1,41 @@
+{
+    "HOME_PAGE": "AI Based Customer Complaint Management",
+    "HOME_PAGE_TAGLINE": "Enabling AI-driven support across the complaint management process — driving productivity, consistency, and faster outcomes.",
+    "BOTS": {
+        "DIAGNOSIS_BOT": {
+            "TITLE": "Diagnosis Bot",
+            "DESCRIPTION": "Guided diagnostic support and insights for FCT workflows within PS/QMC-IN"
+        }
+    },
+    "MENU": {
+        "HOME": "Home",
+        "DIAGNOSIS_BOT": "Diagnosis Bot",
+        "INFERENCE_BOT": "Inference Bot",
+        "ALL_FLOWS": "View All Workflows",
+        "FAQS": "FAQs",
+        "LOGIN":"Login"
+    },
+    "WORKFLOWS": {
+        "SELECT": "Select Workflow",
+        "GET": "Get Workflow",
+        "UPDATE": "Update Workflow"
+    },
+    "CHAT": {
+        "PLACEHOLDER": "Chat with our diagnosis bot",
+        "END_MESSAGE": "This conversation has ended, thank you for using diagnosis bot",
+        "CONNECTING": "Please wait while we connect to the websocket"
+    },
+    "SNACKBAR": {
+        "ERROR": "useSnackbar must be used within a SnackbarProvider"
+    },
+    "WEBSOCKET": {
+        "CLOSE": "WebSocket disconnected due to endWorkflow"
+    },
+    "INCEPTIVE_FORM": {
+        "TITLE_MESSAGE": "Enter the preliminary form",
+        "MANDATORY_FIELDS": "All fields are mandatory"
+    },
+    "PREDICTION": {
+        "SUCCESS": "Prediction successfully obtained from the AI model"
+    }
+}
