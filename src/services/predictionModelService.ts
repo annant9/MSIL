@@ -4,11 +4,11 @@ export async function getPrediction(payload: any, showSnackbar: any, translate: 
   try {
     debugger;
     const response = await fetch(
-      'https://mocki.io/v1/3cab6a57-0617-4547-b15b-21c732a7f526',
+      'https://kor2vm0015.apac.bosch.com:4434/predict',
       {
-        method: 'GET',
-        // headers: {'accept': 'application/json', 'Content-Type': 'application/json'},
-        // body: JSON.stringify(payload)
+        method: 'POST',
+        headers: {'accept': 'application/json', 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
       }
     );
     if (!response.ok) {
