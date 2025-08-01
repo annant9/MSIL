@@ -25,7 +25,6 @@ const DiagnosisBot: React.FC = () => {
   const ws = useRef<WebSocket | null>(null);
   const placeholderText = translate('CHAT.PLACEHOLDER');
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const { formSubmitted, setFormSubmitted, formChanged } = useInceptiveForm();
   const [loader, setLoader] = useState(false);
   const inputRef = useRef('');
   const [endWorkflow, setEndWorkflow] = useState(false);
@@ -35,18 +34,6 @@ const DiagnosisBot: React.FC = () => {
   const modelOutput = usePredictionStore((state) => state.modelOutput);
 
   useEffect(() => {
-    if (formChanged) setConversations([]);
-  }, [formChanged]);
-
-  useEffect(() => {
-    if (!formSubmitted) {
-      if (ws.current) {
-        closeWebSocket();
-        ws.current = null;
-      }
-      return;
-    }
-
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       return;
     }
@@ -113,7 +100,7 @@ const DiagnosisBot: React.FC = () => {
         ws.current = null;
       }
     };
-  }, [formSubmitted, socketReconnect, restartConversation]);
+  }, [socketReconnect, restartConversation]);
 
   useEffect(() => {
     if (restartConversation) {
@@ -199,37 +186,6 @@ const DiagnosisBot: React.FC = () => {
     ws.current?.close();
   };
 }, []);
-
-useEffect(() => {
-  if (!formChanged)
-    return;
-  ws.current = new WebSocket('ws://localhost:8080');
-  setConversations([]);
-
-  ws.current.onopen = () => {
-    console.log('WebSocket connected');
-  };
-
-  ws.current.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    const botReply = data;
-    setConversations((prev) => [...prev, botReply]);
-        setLoader(false);
-  };
-
-  ws.current.onerror = (error) => {
-    console.log('WebSocket error:', error);
-  };
-
-  ws.current.onclose = () => {
-    console.log('WebSocket closed');
-  };
-
-  return () => {
-    ws.current?.close();
-  };
-}, [formChanged]);
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -358,7 +314,6 @@ useEffect(() => {
                           src={editForm}
                           alt="Edit Form"
                           className={`${styles.iconStyle} ${endWorkflow ? styles.disabledIcon : ''}`}
-                          onClick={() => setFormSubmitted(false)}
                         />
                       </Tooltip>
                       <Tooltip title="Restart Conversation">
