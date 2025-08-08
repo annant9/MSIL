@@ -64,10 +64,6 @@ const Home: React.FC = () => {
                 <Grid size={{ xs: 12, md: 12 }}>
                   <AiSummary />
                 </Grid>
-                <Grid size={{ xs: 12, md:12 }}>
-                  <hr className="a-divider" />
-                  <DiagnosisBot />
-                </Grid>
               </Grid>
             </AccordionDetails>
           </Accordion>

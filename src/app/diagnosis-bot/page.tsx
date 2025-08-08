@@ -12,10 +12,13 @@ import { closeWebSocket, initWebSocket } from '@/utils/websocket';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from '@/contexts/SnackBarContext';
 import { usePredictionStore } from '@/stores/predictionStore';
+import { createChatSession, sendChatMessage } from '@/services/chatModelService';
+import { useSummaryStore } from '@/stores/summaryStore';
+import { marked } from 'marked';
 
 type Conversation = {
   sender: string;
-  content: string;
+  content: any;
 };
 
 const DiagnosisBot: React.FC = () => {
@@ -29,101 +32,17 @@ const DiagnosisBot: React.FC = () => {
   const inputRef = useRef('');
   const [endWorkflow, setEndWorkflow] = useState(false);
   const messageHandledRef = useRef(false);
-  const [socketReconnect, setSocketReconnect] = useState(false);
   const [restartConversation, setRestartConversation] = useState(false);
   const modelOutput = usePredictionStore((state) => state.modelOutput);
-
-  useEffect(() => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      return;
-    }
-
-    setEndWorkflow(false);
-    setLoader(true);
-
-    const newSocket = initWebSocket();
-    ws.current = newSocket;
-
-    newSocket.onopen = () => {
-      setConversations([]);
-    };
-
-    newSocket.onmessage = (event) => {
-      messageHandledRef.current = false;
-      try {
-        const data = JSON.parse(event.data);
-        setLoader(false);
-        const response = data.response || data;
-
-        let botReply = response;
-
-        response.end_workflow && setEndWorkflow(true);
-        setConversations((prev) => [...prev, botReply]);
-        setLoader(false);
-        messageHandledRef.current = true;
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-        setLoader(false);
-      }
-    };
-
-    newSocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setLoader(false);
-      showSnackbar(translate('CHAT.CONNECTING') + '!', 'info');
-    };
-
-    newSocket.onclose = () => {
-      if (!conversations.length) setSocketReconnect(true);
-    };
-
-    return () => {
-      if (ws.current) {
-        if (ws.current) {
-          if (newSocket.onmessage) {
-            ws.current.removeEventListener('message', newSocket.onmessage);
-          }
-          if (newSocket.onerror) {
-            ws.current.removeEventListener('error', newSocket.onerror);
-          }
-          if (newSocket.onopen) {
-            ws.current.removeEventListener('open', newSocket.onopen);
-          }
-        };
-
-        if (
-          newSocket.readyState === WebSocket.OPEN ||
-          newSocket.readyState === WebSocket.CONNECTING
-        ) {
-          newSocket.close();
-        }
-        ws.current = null;
-      }
-    };
-  }, [socketReconnect, restartConversation]);
+  const { formValue } = useInceptiveForm();
+  const summaryOutput = useSummaryStore((state) => state.summaryOutput);
+  const [sessionId, setSessionId] = useState('');
 
   useEffect(() => {
     if (restartConversation) {
       setRestartConversation(false);
     }
   }, [restartConversation]);
-
-  useEffect(() => {
-    if (!endWorkflow) return;
-    const socket = ws.current;
-    if (!socket) return;
-    socket.onclose = () => {
-      console.log(translate('WEBSCOKET.CLOSE') + '.');
-    };
-    return () => {
-      if (
-        socket.readyState === WebSocket.OPEN ||
-        socket.readyState === WebSocket.CONNECTING
-      ) {
-        socket.close();
-      }
-    };
-  }, [endWorkflow]);
 
   const changeInputText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
@@ -161,61 +80,72 @@ const DiagnosisBot: React.FC = () => {
   }, [conversations]);
 
   useEffect(() => {
-  ws.current = new WebSocket('ws://localhost:8080');
 
-  ws.current.onopen = () => {
-    console.log('WebSocket connected');
-  };
+  }, [summaryOutput])
 
-  ws.current.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    const botReply = data;
-    setConversations((prev) => [...prev, botReply]);
-        setLoader(false);
-  };
-
-  ws.current.onerror = (error) => {
-    console.log('WebSocket error:', error);
-  };
-
-  ws.current.onclose = () => {
-    console.log('WebSocket closed');
-  };
-
-  return () => {
-    ws.current?.close();
-  };
-}, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() && !inputRef.current.trim()) return;
-    setLoader(true);
 
+    setInputText('');
     const messageToSend = inputText.length ? inputText : inputRef.current;
     const messagePayload = {
       content: messageToSend,
     };
 
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify(messagePayload));
-      messageHandledRef.current = false;
-      setInputText('');
-      inputRef.current = '';
+    if (!conversations.length) {
+      const { paramData } = extractData();
+      const response = await createChatSession(paramData, translate);
+      const userMessage = { sender: 'user', content: messageToSend };
+      setConversations((prev) => [...prev, userMessage]);
+      setLoader(true);
+      if (response?.session_id) {
+        const chatResponse = await sendChatMessage({ 'session_id': response.session_id, 'user_input': messageToSend }, translate);
+        const html = marked(chatResponse?.response);
+        const botMessage = { sender: 'bot', content: html };
+        setLoader(false);
+        setConversations((prev) => [...prev, botMessage]);
+        setSessionId(response?.session_id);
+      }
     } else {
-      console.warn('WebSocket not ready to send message.');
+      const userMessage = { sender: 'user', content: messageToSend };
+      setConversations((prev) => [...prev, userMessage]);
+      setLoader(true);
+      const chatResponse = await sendChatMessage({ 'session_id': sessionId, 'user_input': messageToSend }, translate);
+      const html = marked(chatResponse?.response);
+      const botMessage = { sender: 'bot', content: html };
       setLoader(false);
-      showSnackbar(translate('CHAT.CONNECTION_LOST'), 'warning');
-      return;
+      setConversations((prev) => [...prev, botMessage]);
     }
+  };
 
-    const userMessage= {sender: 'user', content: messageToSend};
-    setConversations((prev) => [...prev, userMessage]);
+  const extractData = () => {
+    const paramData: Record<string, any> = {};
+    formValue.forEach((question: any) => {
+      if (question.id && question.id === 'issue') {
+        paramData['current_issue'] = question.value;
+      }
+    });
+    paramData['classification_model_output'] = {
+      'prediction': modelOutput?.prediction,
+      'prediction_explanation': [
+        {
+          "feature": "string",
+          "impact": 0
+        }
+      ],
+      'input_features': {
+        'additionalProp1': {}
+      }
+    };
+    paramData['retrieved_documents_index'] = summaryOutput?.similar_indices;
+    paramData['summary'] = summaryOutput?.summary
+    return { paramData };
   };
 
   const resetConversation = () => {
     setConversations([]);
-    setEndWorkflow(false);
     setLoader(false);
     if (ws.current) {
       ws.current.close();
@@ -265,7 +195,7 @@ const DiagnosisBot: React.FC = () => {
                             <div
                               className={`pt-0 pr-3 pb-3 pl-3 rounded-xl max-w-xs bg-white text-black self-start ${styles.responseContainer}`}
                             >
-                              <div>{msg.content}</div>
+                              <div dangerouslySetInnerHTML={{ __html: msg.content }} />
                             </div>
                           </div>
                         )
@@ -304,25 +234,17 @@ const DiagnosisBot: React.FC = () => {
                       value={inputText}
                       onChange={changeInputText}
                       onKeyDown={keyboardInput}
-                      disabled={endWorkflow}
+                      disabled={!summaryOutput}
                     ></textarea>
                   </div>
                   <div className={styles.queryButton}>
                     <Box className={styles.flexComponent}>
-                      <Tooltip title="Edit Form">
-                        <Image
-                          src={editForm}
-                          alt="Edit Form"
-                          className={`${styles.iconStyle} ${endWorkflow ? styles.disabledIcon : ''}`}
-                        />
-                      </Tooltip>
                       <Tooltip title="Restart Conversation">
                         <Image
                           src={reset}
                           alt="newChat"
                           className={`${styles.iconStyle} ${endWorkflow ? styles.disabledIcon : ''}`}
                           onClick={() => {
-                            setEndWorkflow(true);
                             resetConversation();
                           }}
                         />
@@ -332,7 +254,7 @@ const DiagnosisBot: React.FC = () => {
                     <Tooltip title="Send">
                       <i
                         className={`a-icon a-button__icon boschicon-bosch-ic-paperplane ${styles.iconStyle} ${endWorkflow ? styles.disabledIcon : ''}`}
-                        onClick={endWorkflow ? undefined : handleSubmit}
+                        onClick={summaryOutput ? undefined : handleSubmit}
                         aria-label="Restart Conversation"
                       />
                     </Tooltip>

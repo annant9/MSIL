@@ -2,7 +2,7 @@
   "/_not-found/page": "/_not-found",
   "/favicon.ico/route": "/favicon.ico",
   "/ai-summary/page": "/ai-summary",
-  "/home/page": "/home",
   "/diagnosis-bot/page": "/diagnosis-bot",
+  "/home/page": "/home",
   "/page": "/"
 }

@@ -26,3 +26,56 @@
     margin-top: 2rem;
     text-align-last: end;
 }
+
+.container {
+  display: flex;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+.text {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.color1 {
+  background-color: #ed0007;
+}
+
+.color2 {
+  background-color: #9e2896;
+}
+
+.color3 {
+  background-color: #007bc0;
+}
+
+.color4 {
+  background-color: #18837e;
+}
+
+.color5 {
+  background-color: #00884a;
+}
+
+.active {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.dimmed {
+  opacity: 0.4;
+  transform: scale(1);
+}

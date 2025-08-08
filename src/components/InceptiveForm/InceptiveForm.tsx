@@ -41,18 +41,15 @@ const InceptiveForm: React.FC<InceptiveFormProps> = ({ onSubmitSuccess }) => {
       const fetchQuestions = async () => {
         const data = await getPreliminaryQuestions();
         setInceptiveForm(data);
-        console.log(data);
       };
       fetchQuestions();
     }
   }, []);
 
   useEffect(() => {
-    console.log(inceptiveForm);
     let stepValidity = true;
     inceptiveForm && inceptiveForm.map((question: any, index: number) => {
       stepValidity = stepValidity && question.valid && question.value.length > 0;
-      console.log(stepValidity);
     });
     // localStorage.setItem('form', inceptiveForm)
     setFormValue(inceptiveForm);
@@ -62,10 +59,7 @@ const InceptiveForm: React.FC<InceptiveFormProps> = ({ onSubmitSuccess }) => {
   const handleChange = (parentIndex: string, index: number, value: string) => {
     setInceptiveForm((prev: any[]) => {
       const updated = prev.map((question: any) => {
-        console.log(question);
-        // debugger;
         if (question.index === index) {
-          // debugger;
           const pattern = question?.regex?.replace(/^\/|\/$/g, '');
           const regex = pattern ? new RegExp(pattern) : null;
           const isValid = regex ? regex.test(value) || value.length === 0 : true;
@@ -81,7 +75,7 @@ const InceptiveForm: React.FC<InceptiveFormProps> = ({ onSubmitSuccess }) => {
     });
   };
 
-  const extractFormData = React.useCallback(() => {
+  const extractFormData = () => {
     const paramData: Record<string, string> = {};
     const objectifiedForm = inceptiveForm;
 
@@ -93,11 +87,10 @@ const InceptiveForm: React.FC<InceptiveFormProps> = ({ onSubmitSuccess }) => {
           }
       });
     return { paramData };
-  }, []);
+  };
 
   const handleSubmit = async () => {
     const { paramData } = extractFormData();
-    console.log(paramData);
     const modelOutputs = await getPrediction(paramData, showSnackbar, translate);
 
     if (!modelOutputs) {

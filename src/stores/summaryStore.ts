@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 interface SummaryOutput {
-  ai_summary: string,
+  summary: string,
   similar_indices: string
 }
 

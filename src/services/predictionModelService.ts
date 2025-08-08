@@ -2,6 +2,7 @@ import { usePredictionStore } from '@/stores/predictionStore';
 
 export async function getPrediction(payload: any, showSnackbar: any, translate: any): Promise<any> {
   try {
+    console.log(JSON.stringify(payload));
     debugger;
     const response = await fetch(
       'https://kor2vm0015.apac.bosch.com:4434/predict',
