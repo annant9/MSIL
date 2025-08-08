@@ -41,8 +41,6 @@ const AiSummary: React.FC = () => {
 
     const extractData = () => {
         const paramData: Record<string, any> = {};
-        console.log(formValue)
-        debugger;
         formValue.forEach((question: any) => {
             if (question.id && question.id === 'issue') {
                 paramData['current_issue'] = question.value;
@@ -70,8 +68,6 @@ const AiSummary: React.FC = () => {
         const rawText = summaryOutput?.summary;
         const html = marked(rawText);
         setHtmlContent(html);
-        console.log(htmlContent);
-
     }, [summaryOutput]);
 
     return (
